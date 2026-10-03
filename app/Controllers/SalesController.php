@@ -125,4 +125,56 @@ class SalesController extends BaseController
                          ->with('invoice_data', $invoiceData)
                          ->with('success', "Transaksi $invoiceNo Berhasil Diselesaikan!");
     }
+
+    // Halaman Riwayat Transaksi khusus Gerai
+public function history()
+{
+    $geraiId = 3; // Gerai Utama
+
+    $sales = $this->db->query("
+        SELECT s.id, s.invoice_number, s.total_amount, s.created_at, l.name as location_name
+        FROM sales s
+        JOIN locations l ON s.location_id = l.id
+        WHERE s.location_id = ?
+        ORDER BY s.created_at DESC
+        LIMIT 50
+    ", [$geraiId])->getResultArray();
+
+    return view('sales/history', [
+        'title'        => 'Riwayat Transaksi - Toko Ritel Makmur',
+        'page_heading' => 'Riwayat Transaksi Kasir Gerai',
+        'sales'        => $sales
+    ]);
+}
+
+// Fitur Cetak Ulang Struk dari Riwayat
+public function reprint($id)
+{
+    $sale = $this->db->table('sales')->where('id', $id)->get()->getRowArray();
+    if (!$sale) {
+        return redirect()->to('sales/history')->with('error', 'Transaksi tidak ditemukan.');
+    }
+
+    $items = $this->db->query("
+        SELECT p.name, si.qty, si.price, si.subtotal
+        FROM sale_items si
+        JOIN products p ON si.product_id = p.id
+        WHERE si.sale_id = ?
+    ", [$id])->getResultArray();
+
+    $invoiceData = [
+        'invoice_number' => $sale['invoice_number'],
+        'created_at'     => date('d/m/Y H:i', strtotime($sale['created_at'])),
+        'cashier_name'   => session()->get('fullname') ?? 'Kasir Gerai',
+        'items'          => $items,
+        'total_amount'   => $sale['total_amount'],
+        'cash_amount'    => $sale['total_amount'],
+        'change_amount'  => 0
+    ];
+
+    return redirect()->to('sales/history')
+                     ->with('invoice_data', $invoiceData)
+                     ->with('success', "Menampilkan struk untuk invoice {$sale['invoice_number']}");
+}
+
 }

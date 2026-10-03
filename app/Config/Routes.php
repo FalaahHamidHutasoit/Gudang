@@ -43,5 +43,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
 
     
     $routes->get('reports', 'ReportController::index', ['filter' => 'auth:admin']);
+    $routes->get('sales/history', 'SalesController::history', ['filter' => 'auth:kasir']);
+$routes->get('sales/reprint/(:num)', 'SalesController::reprint/$1', ['filter' => 'auth:kasir']);
 
 });
