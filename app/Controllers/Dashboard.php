@@ -60,6 +60,25 @@ class Dashboard extends BaseController
             LIMIT 5
         ")->getResultArray();
 
+        // 6. Tren Penjualan 7 Hari Terakhir (100% REAL DATABASE)
+        $daysIndo = ['Sun' => 'Minggu', 'Mon' => 'Senin', 'Tue' => 'Selasa', 'Wed' => 'Rabu', 'Thu' => 'Kamis', 'Fri' => 'Jumat', 'Sat' => 'Sabtu'];
+        $chartLabels = [];
+        $chartData   = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $targetDate = date('Y-m-d', strtotime("-$i days"));
+            $dayName    = date('D', strtotime($targetDate));
+
+            $salesOnDate = $this->db->query("
+                SELECT COALESCE(SUM(total_amount), 0) as total
+                FROM sales
+                WHERE DATE(created_at) = ?
+            ", [$targetDate])->getRowArray();
+
+            $chartLabels[] = $daysIndo[$dayName] . ' (' . date('d/m', strtotime($targetDate)) . ')';
+            $chartData[]   = (float)($salesOnDate['total'] ?? 0);
+        }
+
         $data = [
             'title'            => 'Dashboard Manajemen - Toko Ritel Makmur',
             'page_heading'     => 'Dashboard Analitik & Ringkasan Operasional',
@@ -68,6 +87,8 @@ class Dashboard extends BaseController
             'todaySales'       => $todaySales,
             'recentSales'      => $recentSales,
             'topProducts'      => $topProducts,
+            'chartLabels'      => $chartLabels,
+            'chartData'        => $chartData,
         ];
 
         return view('dashboard/index', $data);

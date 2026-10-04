@@ -190,33 +190,34 @@
 <!-- Chart JS Initialization Script -->
 <script>
     // 1. Line Chart: Sales Trend
-    const ctxSales = document.getElementById('salesTrendChart').getContext('2d');
-    new Chart(ctxSales, {
-        type: 'line',
-        data: {
-            labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-            datasets: [{
-                label: 'Penjualan (Rp)',
-                data: [120000, 180000, 150000, 210000, 267000, 310000, 290000],
-                borderColor: '#4f46e5',
-                backgroundColor: 'rgba(79, 70, 229, 0.08)',
-                fill: true,
-                tension: 0.35,
-                borderWidth: 2,
-                pointRadius: 4,
-                pointBackgroundColor: '#4f46e5'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-                x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-            }
+    // 1. Line Chart: Sales Trend (100% Real Database)
+const ctxSales = document.getElementById('salesTrendChart').getContext('2d');
+new Chart(ctxSales, {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($chartLabels) ?>,
+        datasets: [{
+            label: 'Penjualan (Rp)',
+            data: <?= json_encode($chartData) ?>,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointBackgroundColor: '#4f46e5'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
         }
-    });
+    }
+});
 
     // 2. Doughnut Chart: Stock Distribution
     const ctxStock = document.getElementById('stockDistributionChart').getContext('2d');
